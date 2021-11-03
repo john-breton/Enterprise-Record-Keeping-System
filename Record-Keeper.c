@@ -14,8 +14,7 @@
  * SYSC 4001 - Assignment 3
  * Entreprise Record Keeping System
  * Record-Keeper (server) program
- * John Breton - 101129324
- * March 25th, 2020
+ * John Breton
  */
 
 // Structure definitions for message passing

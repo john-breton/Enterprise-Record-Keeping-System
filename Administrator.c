@@ -16,8 +16,7 @@
  * SYSC 4001 - Assignment 3
  * Enterprise Record Keeping System
  * Administrator (client) program
- * John Breton - 101129324
- * March 22nd, 2020
+ * John Breton
  */
 
 // Structure definitions for message passing

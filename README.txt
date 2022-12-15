@@ -1,7 +1,7 @@
 ## Enterprise Record Keeping System
 
 This was an assignment I implemented for the SYSC 4001 Operating Systems course at Carleton University. 
-The purpose of the assingnment was on inter-process communication using message queues.
+The purpose of the assignment was on inter-process communication using message queues.
 The implementation follows a client-server paradigm, with the Adminstrator acting as the client and the Record Keeper acting as the server.
 
 ### Setup

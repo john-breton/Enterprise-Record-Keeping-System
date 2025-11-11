@@ -21,17 +21,17 @@
 
 // Structure definitions for message passing
 struct msg {
-        long int msg_type;
-	int command;
-        char employeeName[MAX_SIZE];
-        char employeeDepartment[MAX_SIZE];
-        int employeeNumber;
-        int employeeSalary;
+    	long int msg_type;
+		int command;
+   		char employeeName[MAX_SIZE];
+   		char employeeDepartment[MAX_SIZE];
+    	int employeeNumber;
+    	int employeeSalary;
 };
 
 struct response {
         long int msg_type;
-	int returnData;
+		int returnData;
 };
 
 // Function prototypes
@@ -66,17 +66,17 @@ int main() {
                 fprintf(stderr, "Server to client message queue failed to create. msgget failed with error: %d\n", errno);
         }
 	
-	// Main routine.
+		// Main routine.
         while (running) {
                 printf("Please enter a command (insert, check_employee_number, check_salary, check, delete, quit): ");
                 fgets(buffer, BUFFER_SIZE, stdin);
                 int command = checkCommand(buffer);
-		// Take appropriate action based on the command that was just entered.
+				// Take appropriate action based on the command that was just entered.
                 switch (command) {
                         case 0:
                                 running = 0;
-				quit(msgidC2S);
-		      	        break;
+								quit(msgidC2S);
+		      	        		break;
                         case 1:
                                 insert(msgidC2S, msgidS2C);
                                 break;
@@ -98,9 +98,8 @@ int main() {
                 }
         }
 		
-	printf("Thank you for using the record-keeping system! Exiting...\n");
+		printf("Thank you for using the record-keeping system! Exiting...\n");
         exit(EXIT_SUCCESS);
-
         return 0;
 }
 
@@ -113,82 +112,87 @@ int main() {
  */
 void insert(int msgidC2S, int msgidS2C) {
         struct msg newEmployee;
-	struct response inserted;
+		struct response inserted;
         char name[MAX_SIZE];
         char departmentName[MAX_SIZE];
         char employeeNumber[MAX_SIZE];
-	int empNum;
+		int empNum;
         char salary[MAX_SIZE];
-	int sal;
-	long int msgToReceive = 0;
-	newEmployee.msg_type = 1;
-	newEmployee.command = 1;
+		int sal;
+		long int msgToReceive = 0;
+		newEmployee.msg_type = 1;
+		newEmployee.command = 1;
 
         printf("All information provided must be less than %d characters in length. Additional input will be truncated.\n", MAX_SIZE);
-        // Get the employee's name.
-	while (1) {
-        	printf("Please enter the employee's name: ");
-        	fgets(name, MAX_SIZE, stdin);
-        	if (!isdigit(name[0])) {
-			strcpy(newEmployee.employeeName, name);
-			break;
-		} else {
-			printf("Error, an employee cannot have a number as a name. They are people too.\n");
+        
+		// Get the employee's name.
+		while (1) {
+        		printf("Please enter the employee's name: ");
+        		fgets(name, MAX_SIZE, stdin);
+        		if (!isdigit(name[0])) {
+						strcpy(newEmployee.employeeName, name);
+						break;
+				} else {
+						printf("Error, an employee cannot have a number as a name. They are people too.\n");
+				}
 		}
-	}
-        // Get the employee's department.
+        
+		// Get the employee's department.
         while (1) {	
-		printf("Please enter the employee's department name: ");
-        	fgets(departmentName, MAX_SIZE, stdin);
-        	if (!isdigit(departmentName[0])) {
-			strcpy(newEmployee.employeeDepartment, departmentName);
-			break;
-		} else {
-			printf("Error, a department cannot be a number.\n");
+				printf("Please enter the employee's department name: ");
+        		fgets(departmentName, MAX_SIZE, stdin);
+        		if (!isdigit(departmentName[0])) {
+						strcpy(newEmployee.employeeDepartment, departmentName);
+						break;
+				} else {
+						printf("Error, a department cannot be a number.\n");
+				}
 		}
-	}
-        // Get the employee's identification number.
+        
+		// Get the employee's identification number.
         while (1) {
-		printf("Please enter the employee's identification number: ");
-        	fgets(employeeNumber, MAX_SIZE, stdin);
-        	empNum = atoi(employeeNumber);
-		if (empNum <= 0) {
-			printf("Error, an employee identification number must a number greater than 0.\n");
-		} else {
-			newEmployee.employeeNumber = empNum;
-			break;
+				printf("Please enter the employee's identification number: ");
+        		fgets(employeeNumber, MAX_SIZE, stdin);
+        		empNum = atoi(employeeNumber);
+				if (empNum <= 0) {
+						printf("Error, an employee identification number must a number greater than 0.\n");
+				} else {
+						newEmployee.employeeNumber = empNum;
+						break;
+				}
 		}
-	}
-        // Get the employee's salary.
+        
+		// Get the employee's salary.
         while (1) {
-		printf("Please enter the employee's salary (Numbers only. Ex: 10000): ");
-        	fgets(salary, MAX_SIZE, stdin);
-        	sal = atoi(salary);
-		if (sal <= 0) {
-			printf("Error, an employee salary must be greater than 0. They need to eat.\n");
-		} else {
-			newEmployee.employeeSalary = sal;
-			break;
+				printf("Please enter the employee's salary (Numbers only. Ex: 10000): ");
+        		fgets(salary, MAX_SIZE, stdin);
+        		sal = atoi(salary);
+				if (sal <= 0) {
+						printf("Error, an employee salary must be greater than 0. They need to eat.\n");
+				} else {
+						newEmployee.employeeSalary = sal;
+						break;
+				}
 		}
-	}
+
         // Attempt to send the newly created employee info to the server.
         if (msgsnd(msgidC2S, (void *)&newEmployee, MSG_SIZE, 0) == -1) {
                 fprintf(stderr, "msgsnd failed\n");
                 exit(EXIT_FAILURE);
         }
 
-	// Wait for a response from the server.
-	if (msgrcv(msgidS2C, (void *)&inserted, sizeof(int), msgToReceive, 0) == -1) {
-		fprintf(stderr, "msgrcv failed\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	// Check to see if the insertion was successful.
-	if (inserted.returnData == -1) {
-		printf("Error: Insertion could not be performed because the employee list is full.\n");
-	} else {
-		printf("The employee was successfully inserted.\n");
-	}
+		// Wait for a response from the server.
+		if (msgrcv(msgidS2C, (void *)&inserted, sizeof(int), msgToReceive, 0) == -1) {
+				fprintf(stderr, "msgrcv failed\n");
+				exit(EXIT_FAILURE);
+		}
+
+		// Check to see if the insertion was successful.
+		if (inserted.returnData == -1) {
+				printf("Error: Insertion could not be performed because the employee list is full.\n");
+		} else {
+				printf("The employee was successfully inserted.\n");
+		}
 }
 
 /**
@@ -203,22 +207,24 @@ void check_employee_number(int msgidC2S, int msgidS2C) {
         struct response number;
         char name[MAX_SIZE];
         long int msgToReceive = 0;
-	checkEmployeeNumber.msg_type = 1;
+		checkEmployeeNumber.msg_type = 1;
         checkEmployeeNumber.command = 2;
 
         printf("All information provided must be less than %d characters in length. Additional input will be truncated.\n", MAX_SIZE);
-        // Get the employee's name that we want to find the employee number.
+
+		// Get the employee's name that we want to find the employee number.
         while (1) {
-		printf("Please enter the employee's name: ");
-        	fgets(name, MAX_SIZE, stdin);
-		if (!isdigit(name[0])) {
-        		strcpy(checkEmployeeNumber.employeeName, name);
-			break;
-		} else {
-			printf("Error, an employee cannot have a number as a name. Please try again.\n");
+				printf("Please enter the employee's name: ");
+        		fgets(name, MAX_SIZE, stdin);
+				if (!isdigit(name[0])) {
+        				strcpy(checkEmployeeNumber.employeeName, name);
+						break;
+				} else {
+						printf("Error, an employee cannot have a number as a name. Please try again.\n");
+				}
 		}
-	}
-        // Attempt to send the info to the server.
+
+		// Attempt to send the info to the server.
         if (msgsnd(msgidC2S, (void *)&checkEmployeeNumber, MSG_SIZE, 0) == -1) {
                 fprintf(stderr, "msgsnd failed\n");
                 exit(EXIT_FAILURE);
@@ -229,9 +235,11 @@ void check_employee_number(int msgidC2S, int msgidS2C) {
                 fprintf(stderr, "msgrcv failed\n");
                 exit(EXIT_FAILURE);
         }
-	// Remove the newline character from the returned data.
-	strtok(name, "\n");
-	// Check to see if an employee was found.
+
+		// Remove the newline character from the returned data.
+		strtok(name, "\n");
+
+		// Check to see if an employee was found.
         if (number.returnData == -1) {
                 printf("No employee was found with that name. Names are case-sensitive.\n");
         } else {
@@ -240,30 +248,36 @@ void check_employee_number(int msgidC2S, int msgidS2C) {
 }
 
 /**
- *
+ * Checks for the salary that corresponds to a supplied employee number. There is
+ * some input checking, but it is by no means robust. Once a number has been
+ * supplied, the client awaits a response from the server. If a salary was found,
+ * it is printed to the console. If no salary was found for the supplied number, this
+ * is printed to the console.
  */
 void check_salary(int msgidC2S, int msgidS2C) {
         struct msg checkEmployeeSalary;
         struct response salary;
         char number[MAX_SIZE];
-	int num;
+		int num;
         long int msgToReceive = 0;
-	checkEmployeeSalary.msg_type = 1;
+		checkEmployeeSalary.msg_type = 1;
         checkEmployeeSalary.command = 3;
 
         printf("All information provided must be less than %d characters in length. Additional input will be truncated.\n", MAX_SIZE);
-        // Get the employee number that corresponds to the salary we want to check.
-  	while (1) {	
-  		printf("Please enter an employee number: ");
-        	fgets(number, MAX_SIZE, stdin);
-        	num = atoi(number);
-		if (num <= 0) {
-			printf("Error, invalid input detected. Employee numbers must be numbers and must be greater than 0.\n");
-		} else {
-			checkEmployeeSalary.employeeNumber = num;
-			break;	
+        
+		// Get the employee number that corresponds to the salary we want to check.
+  		while (1) {	
+  				printf("Please enter an employee number: ");
+        		fgets(number, MAX_SIZE, stdin);
+        		num = atoi(number);
+				if (num <= 0) {
+						printf("Error, invalid input detected. Employee numbers must be numbers and must be greater than 0.\n");
+				} else {
+						checkEmployeeSalary.employeeNumber = num;
+						break;	
+				}
 		}
-	}
+
         // Attempt to send the info to the server.
         if (msgsnd(msgidC2S, (void *)&checkEmployeeSalary, MSG_SIZE, 0) == -1) {
                 fprintf(stderr, "msgsnd failed\n");
@@ -275,11 +289,11 @@ void check_salary(int msgidC2S, int msgidS2C) {
                 fprintf(stderr, "msgrcv failed\n");
                 exit(EXIT_FAILURE);
         }
-	
-	// Remove the newline character from the input.
-	strtok(number, "\n");
-	
-	// Check to see that the query was successful.
+
+		// Remove the newline character from the input.
+		strtok(number, "\n");
+
+		// Check to see that the query was successful.
         if (salary.returnData == -1) {
                 printf("No employee was found with that id number. Please try again.\n");
         } else {
@@ -289,89 +303,100 @@ void check_salary(int msgidC2S, int msgidS2C) {
 }
 
 /**
- *
+ * Checks for employee numbers that correspond to a specific department. There is
+ * some input checking, but it is by no means robust. Once a department has been
+ * supplied, the client awaits a response from the server. If employee numbers are found,
+ * they are printed to the console. If no employee numbers are found for the supplied
+ * department, this is printed to the console.
  */
 void check(int msgidC2S, int msgidS2C) {
-	struct msg checkDepartment;
-	struct response empNums;
-	struct response empty;	
-	char department[MAX_SIZE];
-	long int msgToReceive = 0;
-	int count = 0;
-	checkDepartment.msg_type = 1;
-	checkDepartment.command = 4;	
+		struct msg checkDepartment;
+		struct response empNums;
+		struct response empty;	
+		char department[MAX_SIZE];
+		long int msgToReceive = 0;
+		int count = 0;
+		checkDepartment.msg_type = 1;
+		checkDepartment.command = 4;	
 
-	printf("All information provided must be less than %d characters in length. Additional input will be truncated.\n", MAX_SIZE);
-	// Get the department name that corresponds to the check.
-	while (1) {
-		printf("Please enter a department name: ");
-		fgets(department, MAX_SIZE, stdin);
-		if (!isdigit(department[0])) {
-			strcpy(checkDepartment.employeeDepartment, department);
-			break;
-		} else {
-			("Error, invalid input detected. A department cannot be composed exclusively of numbers. Please try again.\n");
+		printf("All information provided must be less than %d characters in length. Additional input will be truncated.\n", MAX_SIZE);
+
+		// Get the department name that corresponds to the check.
+		while (1) {
+				printf("Please enter a department name: ");
+				fgets(department, MAX_SIZE, stdin);
+				if (!isdigit(department[0])) {
+						strcpy(checkDepartment.employeeDepartment, department);
+						break;
+				} else {
+						printf("Error, invalid input detected. A department cannot be composed exclusively of numbers. Please try again.\n");
+				}
 		}
-	}
 
-	// Attempt to send the info to the server.
-	if (msgsnd(msgidC2S, (void *)&checkDepartment, MSG_SIZE, 0) == -1) {
-		fprintf(stderr, "msgsnd failed\n");
-	        exit(EXIT_FAILURE);
-	}
+		// Attempt to send the info to the server.
+		if (msgsnd(msgidC2S, (void *)&checkDepartment, MSG_SIZE, 0) == -1) {
+				fprintf(stderr, "msgsnd failed\n");
+		        exit(EXIT_FAILURE);
+		}
 
-	// Remove the newline character from the input.
-	strtok(department, "\n"); 
-	
-	//Wait until the server indicates there are no more employee numbers for the department.
+		// Remove the newline character from the input.
+		strtok(department, "\n"); 
+
+		//Wait until the server indicates there are no more employee numbers for the department.
         while (1) {
-		if (msgrcv(msgidS2C, (void *)&empNums, sizeof(int), msgToReceive, 0) == -1) {
-         		fprintf(stderr, "msgrcv failed\n");
-			exit(EXIT_FAILURE); 
-		}
-		if (empNums.returnData == -1) {
-			break;
-		} else {
-			if (count == 0) {
-				printf("The employee numbers for the %s department are:\n", department);
-			}
-			printf("%d\n", empNums.returnData);
-			empNums = empty;
-			count++;			
-		}	
-	} 
+				if (msgrcv(msgidS2C, (void *)&empNums, sizeof(int), msgToReceive, 0) == -1) {
+         				fprintf(stderr, "msgrcv failed\n");
+						exit(EXIT_FAILURE); 
+				}
+				if (empNums.returnData == -1) {
+						break;
+				} else {
+						if (count == 0) {
+								printf("The employee numbers for the %s department are:\n", department);
+						}
+						printf("%d\n", empNums.returnData);
+						empNums = empty;
+						count++;			
+				}	
+		} 
 
-	if (count == 0) {
-		printf("No employee numbers for found to belong to the %s department.\n", department);
-	}
+		if (count == 0) {
+				printf("No employee numbers for found to belong to the %s department.\n", department);
+		}
 }
 
 /**
- *
+ * Deletes the employee associated with the supplied employee number. There is
+ * some input checking, but it is by no means robust. Once an employee number has been
+ * supplied, the client awaits a response from the server. If the employee is found,
+ * a confirmation is printed to the console upon their deletion. If no employee is found
+ * for the supplied employee number, this is printed to the console.
  */
 void delete(int msgidC2S, int msgidS2C) {
-	struct msg deletion;
-	struct response success;
-	char number[MAX_SIZE];
-	long int msgToReceive = 0;
-	int num;
-	deletion.msg_type = 1;
-	deletion.command = 5;
-	
-	printf("All information provided must be less than %d characters in length. Additional input will be truncated.\n", MAX_SIZE);
-        // Get the employee number that corresponds to the employee we want to delete.
-  	while (1) {	
-  		printf("Please enter an employee number: ");
-        	fgets(number, MAX_SIZE, stdin);
-        	num = atoi(number);
-		if (num <= 0) {
-			printf("Error, invalid input detected. Employee numbers must be numbers and must be greater than 0.\n");
-		} else {
-			deletion.employeeNumber = num;
-			break;	
+		struct msg deletion;
+		struct response success;
+		char number[MAX_SIZE];
+		long int msgToReceive = 0;
+		int num;
+		deletion.msg_type = 1;
+		deletion.command = 5;
+
+		printf("All information provided must be less than %d characters in length. Additional input will be truncated.\n", MAX_SIZE);
+
+		// Get the employee number that corresponds to the employee we want to delete.
+  		while (1) {	
+  				printf("Please enter an employee number: ");
+        		fgets(number, MAX_SIZE, stdin);
+        		num = atoi(number);
+				if (num <= 0) {
+						printf("Error, invalid input detected. Employee numbers must be numbers and must be greater than 0.\n");
+				} else {
+						deletion.employeeNumber = num;
+						break;	
+				}
 		}
-	}
-        // Attempt to send the info to the server.
+
+		// Attempt to send the info to the server.
         if (msgsnd(msgidC2S, (void *)&deletion, MSG_SIZE, 0) == -1) {
                 fprintf(stderr, "msgsnd failed\n");
                 exit(EXIT_FAILURE);
@@ -382,11 +407,11 @@ void delete(int msgidC2S, int msgidS2C) {
                 fprintf(stderr, "msgrcv failed\n");
                 exit(EXIT_FAILURE);
         }
+
+		// Remove the newline character from the input.
+		strtok(number, "\n");
 	
-	// Remove the newline character from the input.
-	strtok(number, "\n");
-	
-	// Check to see that the query was successful.
+		// Check to see that the query was successful.
         if (success.returnData == -1) {
                 printf("No employee was found with that id number. Please try again (server returned %d).\n", success.returnData);
         } else {
@@ -395,34 +420,38 @@ void delete(int msgidC2S, int msgidS2C) {
 
 }
 
+/**
+ * Quits the client. Asks the user for confirmation before proceeding.
+ */
 void quit(int msgidC2S) {
-	char d;
+		char d;
         char buffer[BUFFER_SIZE];
-        while(1) {
-           	printf("Would you like to shutdown the record-keeping server as well (Y/N)?\n");
+        
+		while(1) {
+           		printf("Would you like to shutdown the record-keeping server as well (Y/N)?\n");
                 if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
-                	d = buffer[0];
+                		d = buffer[0];
                         buffer[strcspn(buffer, "\n")] = 0;
                         // Ensure that just a single char was entered, nothing more.
                         if (d == 'Y' && !buffer[1]) {
-                        	struct msg shutdown;
-				shutdown.msg_type = 1;	
-				shutdown.command = 0;
-				// Attempt to send the shutdown request to the server.
-				if (msgsnd(msgidC2S, (void *)&shutdown, MSG_SIZE, 0) == -1) {
-					fprintf(stderr, "msgsnd failed\n");
-					exit(EXIT_FAILURE);
-				}							
-				break;
-			} else if (d == 'N' && !buffer[1]) {
+                        		struct msg shutdown;
+								shutdown.msg_type = 1;	
+								shutdown.command = 0;
+								// Attempt to send the shutdown request to the server.
+								if (msgsnd(msgidC2S, (void *)&shutdown, MSG_SIZE, 0) == -1) {
+										fprintf(stderr, "msgsnd failed\n");
+										exit(EXIT_FAILURE);
+								}							
+								break;
+						} else if (d == 'N' && !buffer[1]) {
                                	break;
-			} else {
+						} else {
                                	printf("Invalid input detected, please enter Y or N.\n");
-			}
+						}
                 } else {
-                	printf("Invalid input detected, please enter Y or N.\n");
+                		printf("Invalid input detected, please enter Y or N.\n");
+				}
 		}
-	}
 }
 
 /**
